@@ -1,0 +1,44 @@
+{
+  "name": "Bachelor of Computer Science — Soulbound Credential",
+  "description": "This Soulbound Token (SBT) certifies the completion of an undergraduate degree in Computer Science. Issued on the Ethereum blockchain as a non-transferable, immutable academic credential. Verified under ERC-721 and EIP-5192 standards.",
+  "image": "ipfs://Rbafybeicnohegyom5pdbveetnwyn6yxxz2etj2yjip2nzdastlhbbahodu4",
+  "external_url": "https://sepolia.etherscan.io/address/0xd4B9163625220a366b6c5ED26Ff8d25D7be7B6ad",
+  "attributes": [
+    {
+      "trait_type": "Student Name",
+      "value": "Muhammad Fariz"
+    },
+    {
+      "trait_type": "Student ID",
+      "value": "2101020XXX"
+    },
+    {
+      "trait_type": "Program",
+      "value": "Teknik Informatika"
+    },
+    {
+      "trait_type": "Degree",
+      "value": "Sarjana Komputer (S.Kom)"
+    },
+    {
+      "trait_type": "University",
+      "value": "Universitas XYZ"
+    },
+    {
+      "trait_type": "Faculty",
+      "value": "Fakultas Ilmu Komputer"
+    },
+    {
+      "trait_type": "Graduation Date",
+      "value": "2026-07-15"
+    },
+    {
+      "trait_type": "GPA",
+      "value": "3.85"
+    },
+    {
+      "trait_type": "Token Standard",
+      "value": "ERC-721 + EIP-5192 (Soulbound)"
+    }
+  ]
+}
