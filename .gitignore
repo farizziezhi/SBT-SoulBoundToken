@@ -1,0 +1,43 @@
+# =======================
+# SECURITY & SECRETS
+# =======================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# =======================
+# NODE & DEPENDENCIES
+# =======================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =======================
+# SOLIDITY / HARDHAT
+# =======================
+Solidity/cache/
+Solidity/artifacts/
+Solidity/typechain-types/
+Solidity/coverage/
+Solidity/coverage.json
+Solidity/gasReporterOutput.json
+
+# =======================
+# FRONTEND / VITE
+# =======================
+Frontend/dist/
+Frontend/dist-ssr/
+Frontend/*.local
+
+# =======================
+# OS/EDITOR FILES
+# =======================
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo

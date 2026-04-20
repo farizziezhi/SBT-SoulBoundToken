@@ -1,0 +1,11 @@
+{
+  "network": "sepolia",
+  "contractAddress": "0xd4B9163625220a366b6c5ED26Ff8d25D7be7B6ad",
+  "deployer": "0x152951E0d59fD23847C7c4e10576F25488e345FF",
+  "transactionHash": "0xf92fbaa202ecb8c4847db827324bcd709cb3cb24ee9e480aec5e63cf8ce53be9",
+  "blockNumber": 10695404,
+  "gasUsed": "1960268",
+  "timestamp": "2026-04-20T06:08:10.690Z",
+  "tokenName": "StudentCertificateSBT",
+  "tokenSymbol": "SCSBT"
+}
