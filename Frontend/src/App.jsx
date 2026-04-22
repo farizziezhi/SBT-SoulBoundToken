@@ -9,17 +9,17 @@ function App() {
   const { connectWallet, account, contract, error, getReadOnlyContract } = useContract();
 
   return (
-    <div className="min-h-screen flex flex-col bg-noir">
+    <div className="min-h-screen flex flex-col bg-surface-low">
       <Navbar account={account} connectWallet={connectWallet} />
 
       {error && (
-        <div className="mx-6 mt-6 max-w-6xl md:mx-auto w-full bg-noir-card border border-revoked/30 p-4 flex items-center gap-4 animate-fade-up">
-          <div className="w-1 self-stretch bg-revoked rounded-full"></div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-revoked">{error}</p>
+        <div className="mx-6 mt-6 max-w-6xl md:mx-auto w-full tonal-card bg-error-container/10 p-4 flex items-center gap-3 animate-fade-up">
+          <div className="w-2 h-2 rounded-full bg-error shrink-0"></div>
+          <p className="font-label text-sm text-error">{error}</p>
         </div>
       )}
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-16">
+      <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-12">
         <Routes>
           <Route path="/" element={<Dashboard account={account} contract={contract} />} />
           <Route path="/mint" element={<Mint account={account} contract={contract} />} />
@@ -27,17 +27,10 @@ function App() {
         </Routes>
       </main>
 
-      <footer className="border-t border-zinc-800/50 py-10 mt-auto">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-zinc-600">
-            Soulbound Diploma Protocol
-          </p>
-          <div className="flex items-center gap-3">
-            <span className="w-1 h-1 bg-gold/40 rounded-full"></span>
-            <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-zinc-700">
-              Academic Verification Layer // 2026
-            </p>
-          </div>
+      <footer className="py-10 mt-auto bg-surface">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="font-label text-xs text-on-surface-variant">Soulbound Diploma Protocol</p>
+          <p className="font-label text-xs text-outline">Academic Verification Layer · 2026</p>
         </div>
       </footer>
     </div>

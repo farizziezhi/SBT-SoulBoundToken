@@ -176,6 +176,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenDoesNotExist",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -601,6 +612,21 @@
         "internalType": "string[]",
         "name": "tokenURIs",
         "type": "string[]"
+      },
+      {
+        "internalType": "uint32[]",
+        "name": "certTypes",
+        "type": "uint32[]"
+      },
+      {
+        "internalType": "uint32[]",
+        "name": "scores",
+        "type": "uint32[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "ipfsCIDs",
+        "type": "string[]"
       }
     ],
     "name": "batchMint",
@@ -785,6 +811,21 @@
       {
         "internalType": "string",
         "name": "tokenURI_",
+        "type": "string"
+      },
+      {
+        "internalType": "uint32",
+        "name": "certType_",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "score_",
+        "type": "uint32"
+      },
+      {
+        "internalType": "string",
+        "name": "ipfsCID_",
         "type": "string"
       }
     ],
@@ -1066,6 +1107,50 @@
     "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "verifyCertificate",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "certType",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint64",
+        "name": "issuedAt",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint32",
+        "name": "score",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bool",
+        "name": "isRevoked",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "ipfsCID",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
