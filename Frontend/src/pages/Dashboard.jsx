@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react';
 import { Award, Lock, ExternalLink, ShieldOff, ShieldCheck } from 'lucide-react';
 
 const CERT_TYPE_LABELS = {
-  1: 'Organisasi Kemahasiswaan',
-  2: 'Kompetisi Akademik',
-  3: 'Pelatihan & Workshop',
-  4: 'Pengabdian Masyarakat',
-  5: 'Prestasi Olahraga / Seni',
-  6: 'Sertifikasi Profesi',
+  1: 'ORG. KEMAHASISWAAN',
+  2: 'KOMPETISI AKADEMIK',
+  3: 'PELATIHAN/WORKSHOP',
+  4: 'PENGABDIAN MASYARAKAT',
+  5: 'OLAHRAGA & SENI',
+  6: 'SERTIFIKASI PROFESI',
 };
 
 function formatTimestamp(ts) {
   if (!ts) return '—';
-  return new Date(Number(ts) * 1000).toLocaleDateString('id-ID', {
-    year: 'numeric', month: 'long', day: 'numeric'
-  });
+  const date = new Date(Number(ts) * 1000);
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 }
 
 export default function Dashboard({ account, contract }) {
@@ -56,13 +55,11 @@ export default function Dashboard({ account, contract }) {
   /* ── Auth Gate ── */
   if (!account) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[55vh] tonal-card p-16 text-center animate-fade-up">
-        <div className="w-20 h-20 rounded-card bg-surface-high flex items-center justify-center mb-8">
-          <ShieldOff size={32} className="text-outline" />
-        </div>
-        <h2 className="font-display text-2xl font-bold text-on-surface mb-3">Authentication Required</h2>
-        <p className="font-body text-sm text-on-surface-variant max-w-md leading-relaxed">
-          Connect your MetaMask wallet to access academic records sealed on the Ethereum blockchain.
+      <div className="flex flex-col items-center justify-center min-h-[50vh] brutal-card p-16 text-center animate-fade-in">
+        <ShieldOff size={48} strokeWidth={1} className="mb-6" />
+        <h2 className="font-display text-4xl font-black uppercase tracking-tighter mb-4">ACCESS DENIED</h2>
+        <p className="font-mono text-sm text-neutral-600 max-w-md uppercase tracking-wider leading-relaxed">
+          CONNECTION REQUIRED TO VIEW ENCRYPTED ACADEMIC LEDGER. PLEASE AUTHENTICATE WALLET.
         </p>
       </div>
     );
@@ -72,113 +69,97 @@ export default function Dashboard({ account, contract }) {
   const totalIssued = certificates.length;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       {/* Header */}
-      <header className="animate-fade-up">
-        <h1 className="font-display text-4xl md:text-5xl font-bold text-on-surface tracking-tight mb-2">
-          Your Immutable Records
+      <header className="animate-fade-in border-b-4 border-black pb-8">
+        <h1 className="font-display text-5xl md:text-7xl font-black uppercase tracking-tighter mb-2">
+          LEDGER
         </h1>
-        <p className="font-body text-on-surface-variant">
-          Credential Registry — Verified on Chain
+        <p className="font-mono text-sm font-bold tracking-widest text-neutral-500 uppercase">
+          // IMMUTABLE ACADEMIC DOSSIER
         </p>
       </header>
 
       {/* Stats */}
       {!loading && totalIssued > 0 && (
-        <div className="grid grid-cols-2 gap-4 animate-fade-up">
-          <div className="tonal-card p-6">
-            <p className="font-label text-xs uppercase tracking-wider text-on-surface-variant mb-2">Active</p>
-            <p className="font-display text-4xl font-bold text-verified">{activeCerts.length}</p>
+        <div className="grid grid-cols-2 gap-0 border-2 border-black animate-fade-in">
+          <div className="p-8 border-r-2 border-black bg-white flex flex-col justify-between">
+            <p className="font-mono text-xs font-bold uppercase tracking-widest mb-4">STATUS: ACTIVE</p>
+            <p className="font-display text-7xl font-black">{activeCerts.length}</p>
           </div>
-          <div className="tonal-card p-6">
-            <p className="font-label text-xs uppercase tracking-wider text-on-surface-variant mb-2">Total Issued</p>
-            <p className="font-display text-4xl font-bold text-on-surface">{totalIssued}</p>
+          <div className="p-8 bg-neutral-100 flex flex-col justify-between">
+            <p className="font-mono text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4">TOTAL ISSUED</p>
+            <p className="font-display text-7xl font-black text-neutral-400">{totalIssued}</p>
           </div>
         </div>
       )}
 
       {/* Content */}
       {loading ? (
-        <div className="tonal-card p-10 animate-fade-up">
-          <div className="flex items-center gap-4">
-            <span className="w-2 h-2 bg-tertiary rounded-full animate-pulse"></span>
-            <p className="font-body text-sm text-on-surface-variant">
-              Synchronizing with ledger...
-            </p>
+        <div className="brutal-card p-12 text-center animate-fade-in bg-black text-white">
+          <div className="font-mono text-sm font-bold uppercase tracking-widest animate-pulse">
+            [ QUERYING BLOCKCHAIN STATE ... ]
           </div>
         </div>
       ) : certificates.length === 0 ? (
-        <div className="tonal-card p-16 text-center animate-fade-up">
-          <Award size={32} className="text-outline mx-auto mb-6" />
-          <p className="font-body text-sm text-on-surface-variant">
-            No credentials found for this address.
+        <div className="brutal-card p-16 text-center animate-fade-in border-dashed border-4 border-neutral-300">
+          <Award size={48} strokeWidth={1} className="mx-auto mb-6 text-neutral-400" />
+          <p className="font-mono text-sm font-bold text-neutral-500 uppercase tracking-widest">
+            NO CREDENTIALS LOCATED IN REGISTRY
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {certificates.map((cert, i) => (
             <div
               key={cert.id}
-              className={`tonal-card p-8 animate-fade-up-d${Math.min(i + 1, 3)} ${!cert.exists ? 'opacity-40' : ''}`}
+              className={`brutal-card flex flex-col animate-fade-in ${!cert.exists ? 'bg-neutral-100' : 'bg-white'}`}
+              style={{ animationDelay: `${i * 0.1}s` }}
             >
-              {/* Status badges */}
-              <div className="flex items-center justify-between mb-6">
-                {cert.exists && cert.locked && (
-                  <span className="badge-soulbound"><Lock size={10} /> Soulbound</span>
-                )}
-                {cert.isRevoked ? (
-                  <div className="flex items-center gap-1.5 ml-auto">
-                    <ShieldOff size={12} className="text-error" />
-                    <span className="font-label text-[10px] uppercase tracking-wider text-error font-bold">Revoked</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 ml-auto">
-                    <ShieldCheck size={12} className="text-verified" />
-                    <span className="font-label text-[10px] uppercase tracking-wider text-verified font-bold">Valid</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="w-12 h-12 rounded-card bg-gradient-to-br from-secondary/10 to-primary-container/10 flex items-center justify-center mb-4">
-                <Award className="text-secondary" size={22} />
-              </div>
-
-              <h3 className="font-display text-lg font-bold text-on-surface mb-5">
-                {cert.certType ? (CERT_TYPE_LABELS[cert.certType] || `Type ${cert.certType}`) : 'Certificate'}
-              </h3>
-
-              <div className="space-y-3">
-                <div className="flex flex-col border-t border-surface-low pt-3">
-                  <span className="font-label text-[10px] uppercase tracking-wider text-outline mb-1">Token ID</span>
-                  <span className="font-body text-sm font-semibold text-on-surface">#{cert.id}</span>
+              {/* Card Header */}
+              <div className="border-b-2 border-black p-4 flex justify-between items-center bg-neutral-100">
+                <div className="font-mono font-black text-xl">#{cert.id}</div>
+                <div className="flex gap-2">
+                  {cert.exists && cert.locked && (
+                    <span className="brutal-badge">
+                      <Lock size={12} strokeWidth={3} /> SOULBOUND
+                    </span>
+                  )}
+                  {cert.isRevoked ? (
+                    <span className="brutal-badge-error">REVOKED</span>
+                  ) : (
+                    <span className="brutal-badge-inverted">VALID</span>
+                  )}
                 </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-6 md:p-8 flex-1 flex flex-col justify-center">
+                <h3 className="font-display text-3xl font-black uppercase tracking-tighter leading-none mb-8">
+                  {cert.certType ? (CERT_TYPE_LABELS[cert.certType] || `TYPE-${cert.certType}`) : 'UNKNOWN'}
+                </h3>
 
                 {cert.exists && (
-                  <>
-                    <div className="flex flex-col border-t border-surface-low pt-3">
-                      <span className="font-label text-[10px] uppercase tracking-wider text-outline mb-1">Issued At</span>
-                      <span className="font-body text-sm text-on-surface">{formatTimestamp(cert.issuedAt)}</span>
+                  <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                    <div>
+                      <p className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">DATE ISSUED</p>
+                      <p className="font-mono text-sm font-bold">{formatTimestamp(cert.issuedAt)}</p>
                     </div>
-
-                    <div className="flex flex-col border-t border-surface-low pt-3">
-                      <span className="font-label text-[10px] uppercase tracking-wider text-outline mb-1">Score</span>
-                      <span className="font-body text-sm text-on-surface">
-                        {cert.score > 0 ? `${cert.score} / 100` : '— (N/A)'}
-                      </span>
+                    <div>
+                      <p className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">EVALUATION SCORE</p>
+                      <p className="font-mono text-sm font-bold">{cert.score > 0 ? `${cert.score}/100` : 'N/A'}</p>
                     </div>
-
-                    <div className="flex flex-col border-t border-surface-low pt-3">
-                      <span className="font-label text-[10px] uppercase tracking-wider text-outline mb-1">Metadata URI</span>
+                    <div className="col-span-2 pt-4 border-t-2 border-dashed border-neutral-300">
+                      <p className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-2">METADATA URI</p>
                       <a
                         href={cert.uri}
                         target="_blank" rel="noreferrer"
-                        className="flex items-center gap-1.5 text-primary hover:text-primary-dim transition-colors break-all text-sm"
+                        className="font-mono text-xs underline decoration-2 underline-offset-4 hover:bg-black hover:text-white transition-colors break-all inline-flex items-center gap-1 p-1 -ml-1"
                       >
-                        {cert.uri.length > 28 ? cert.uri.substring(0, 28) + '...' : cert.uri}
-                        <ExternalLink size={11} />
+                        {cert.uri} <ExternalLink size={12} strokeWidth={3} />
                       </a>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>

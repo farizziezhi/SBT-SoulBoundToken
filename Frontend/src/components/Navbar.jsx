@@ -1,62 +1,70 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, LayoutDashboard, PlusCircle, Search } from 'lucide-react';
+import { Database, PlusSquare, Search, Wallet } from 'lucide-react';
 
 export default function Navbar({ account, connectWallet }) {
   const location = useLocation();
 
-  const navItem = (path, label, Icon) => {
-    const active = location.pathname === path;
-    return (
-      <Link
-        to={path}
-        className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium font-body transition-all
-          ${active
-            ? 'bg-primary/10 text-primary'
-            : 'text-on-surface-variant hover:bg-surface-high hover:text-on-surface'
-          }`}
-      >
-        <Icon size={16} />
-        {label}
-      </Link>
-    );
-  };
+  const navLinks = [
+    { path: '/', label: 'DASHBOARD', icon: Database },
+    { path: '/mint', label: 'ISSUE', icon: PlusSquare },
+    { path: '/verify', label: 'VERIFY', icon: Search },
+  ];
 
   return (
-    <nav className="glass-nav sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-10">
+    <nav className="w-full border-b-2 border-black bg-white sticky top-0 z-50">
+      <div className="max-w-[1400px] mx-auto flex items-stretch h-20">
+        
+        {/* Logo Section */}
+        <div className="flex items-center px-6 border-r-2 border-black shrink-0">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-card bg-gradient-to-br from-secondary to-primary-container flex items-center justify-center">
-              <Shield size={20} className="text-white" />
+            <div className="w-8 h-8 bg-black flex items-center justify-center text-white font-mono font-bold text-xs group-hover:rotate-90 transition-transform duration-300">
+              SBT
             </div>
-            <div>
-              <span className="font-display font-bold text-lg text-on-surface tracking-tight">SBT Core</span>
-              <p className="font-label text-[10px] text-on-surface-variant tracking-wide uppercase">Ethereal Archive</p>
-            </div>
+            <span className="font-display font-black text-xl tracking-tighter uppercase hidden sm:block">
+              Soulbound
+            </span>
           </Link>
-
-          {/* Nav */}
-          <div className="hidden md:flex items-center gap-2">
-            {navItem('/', 'Dashboard', LayoutDashboard)}
-            {navItem('/mint', 'Mint', PlusCircle)}
-            {navItem('/verify', 'Verify', Search)}
-          </div>
         </div>
 
-        {/* Wallet */}
-        {account ? (
-          <div className="flex items-center gap-3 bg-surface-lowest rounded-btn px-4 py-2.5 shadow-ambient">
-            <span className="w-2 h-2 rounded-full bg-verified animate-pulse"></span>
-            <span className="font-label text-xs font-medium text-on-surface">
-              {account.substring(0, 6)}···{account.substring(account.length - 4)}
-            </span>
-          </div>
-        ) : (
-          <button onClick={connectWallet} className="btn-gradient text-sm">
-            Connect Wallet
-          </button>
-        )}
+        {/* Links Section */}
+        <div className="flex flex-1 overflow-x-auto hide-scrollbar">
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`flex items-center gap-2 px-6 border-r-2 border-black font-mono text-sm font-bold tracking-widest transition-colors ${
+                  isActive ? 'bg-black text-white' : 'hover:bg-neutral-100 text-black'
+                }`}
+              >
+                <Icon size={16} strokeWidth={2.5} />
+                <span className="hidden md:inline">{link.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Wallet Section */}
+        <div className="flex items-center px-4 md:px-6 shrink-0 bg-white">
+          {account ? (
+            <div className="flex flex-col items-end justify-center h-full">
+              <span className="font-mono text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">Connected</span>
+              <span className="font-mono text-sm font-bold bg-neutral-100 px-2 py-1 border border-black">
+                {account.substring(0, 6)}...{account.substring(account.length - 4)}
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={connectWallet}
+              className="brutal-btn flex items-center gap-2 !py-2 !px-4"
+            >
+              <Wallet size={16} />
+              <span className="hidden sm:inline">CONNECT</span>
+            </button>
+          )}
+        </div>
       </div>
     </nav>
   );

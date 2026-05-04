@@ -1,21 +1,19 @@
 import { useState } from 'react';
-import { Search, Loader2, Award, XCircle, CheckCircle, Lock, ExternalLink, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Search, ExternalLink } from 'lucide-react';
 
-// Map certType code to human-readable label
 const CERT_TYPE_LABELS = {
-  1: '001 — Organisasi Kemahasiswaan',
-  2: '002 — Kompetisi Akademik',
-  3: '003 — Pelatihan & Workshop',
-  4: '004 — Pengabdian Masyarakat',
-  5: '005 — Prestasi Olahraga / Seni',
-  6: '006 — Sertifikasi Profesi',
+  1: 'ORG. KEMAHASISWAAN',
+  2: 'KOMPETISI AKADEMIK',
+  3: 'PELATIHAN/WORKSHOP',
+  4: 'PENGABDIAN MASYARAKAT',
+  5: 'OLAHRAGA & SENI',
+  6: 'SERTIFIKASI PROFESI',
 };
 
 function formatTimestamp(ts) {
   if (!ts) return '—';
-  return new Date(Number(ts) * 1000).toLocaleDateString('id-ID', {
-    year: 'numeric', month: 'long', day: 'numeric'
-  });
+  const date = new Date(Number(ts) * 1000);
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 }
 
 export default function Verify({ getReadOnlyContract }) {
@@ -30,7 +28,7 @@ export default function Verify({ getReadOnlyContract }) {
     setStatus('loading');
     try {
       const contract = getReadOnlyContract();
-      if (!contract) throw new Error('MetaMask is required to query the network.');
+      if (!contract) throw new Error('MetaMask required for network queries.');
 
       const tokenIds = await contract.getStudentCertificates(address);
       if (tokenIds.length === 0) {
@@ -68,138 +66,110 @@ export default function Verify({ getReadOnlyContract }) {
   const revokedCerts = certificates.filter(c => !c.exists || c.isRevoked);
 
   return (
-    <div className="space-y-10">
-      {/* Header */}
-      <header className="animate-fade-up">
-        <h1 className="font-display text-4xl md:text-5xl font-bold text-on-surface tracking-tight mb-2">
-          Public Verification
+    <div className="space-y-12">
+      <header className="animate-fade-in border-b-4 border-black pb-8">
+        <h1 className="font-display text-5xl md:text-7xl font-black uppercase tracking-tighter mb-2">
+          VERIFY
         </h1>
-        <p className="font-body text-on-surface-variant max-w-xl">
-          Cryptographically verify academic credentials attached to any Ethereum address.
-          On-chain data — read-only, zero gas required.
+        <p className="font-mono text-sm font-bold tracking-widest text-neutral-500 uppercase">
+          // ON-CHAIN CREDENTIAL RESOLUTION
         </p>
       </header>
 
-      {/* Search Bar */}
-      <form onSubmit={handleVerify} className="flex items-end gap-3 animate-fade-up-d1">
-        <div className="flex-1 space-y-2">
-          <label className="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-            Target Wallet Address
+      <form onSubmit={handleVerify} className="flex flex-col md:flex-row items-end gap-4 animate-fade-in">
+        <div className="flex-1 w-full space-y-3">
+          <label className="font-mono text-xs font-bold uppercase tracking-widest block">
+            TARGET PUBLIC ADDRESS
           </label>
           <input
             type="text"
             placeholder="0x..."
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="input-ethereal !text-base !py-4"
+            className="brutal-input text-2xl md:text-4xl py-6 tracking-tight font-display font-bold"
           />
         </div>
-        <button type="submit" className="btn-gradient flex items-center justify-center w-14 h-14 !p-0 shrink-0">
-          {status === 'loading' ? <Loader2 className="animate-spin" size={20} /> : <Search size={20} />}
+        <button type="submit" className="brutal-btn w-full md:w-auto h-[88px] flex items-center justify-center shrink-0 px-12">
+          {status === 'loading' ? (
+            <span className="font-mono font-bold animate-pulse">[ SCANNING ]</span>
+          ) : (
+            <Search size={32} strokeWidth={3} />
+          )}
         </button>
       </form>
 
-      {/* Results */}
-      {status === 'loading' && (
-        <div className="flex flex-col items-center py-16 animate-fade-up">
-          <div className="w-3 h-3 rounded-full bg-tertiary animate-pulse mb-4"></div>
-          <p className="font-body text-sm text-on-surface-variant">Querying on-chain state...</p>
-        </div>
-      )}
-
       {status === 'not-found' && (
-        <div className="tonal-card p-14 text-center animate-fade-up">
-          <XCircle size={40} className="text-error/30 mx-auto mb-4" />
-          <h3 className="font-display text-xl font-bold text-on-surface mb-2">No Credentials Found</h3>
-          <p className="font-body text-sm text-on-surface-variant">
-            The queried address holds zero valid soulbound tokens on this contract.
+        <div className="brutal-card p-16 text-center animate-fade-in border-dashed border-4 border-error">
+          <h3 className="font-display text-4xl font-black text-error mb-2 uppercase tracking-tighter">NULL RESULT</h3>
+          <p className="font-mono text-sm font-bold uppercase tracking-widest text-error">
+            ZERO VALID TOKENS LOCATED AT THIS ADDRESS.
           </p>
         </div>
       )}
 
       {status === 'found' && (
-        <div className="space-y-6 animate-fade-up">
-          {/* Summary banner */}
-          <div className="badge-verified inline-flex text-sm">
-            <CheckCircle size={16} />
-            {activeCerts.length} Active · {revokedCerts.length} Revoked — Total {certificates.length} Records
+        <div className="space-y-8 animate-fade-in">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-black text-white p-4 font-mono text-sm font-bold uppercase tracking-widest border-2 border-black">
+            <span>QUERY SUCCESS</span>
+            <span className="hidden sm:inline opacity-50">///</span>
+            <span>{activeCerts.length} ACTIVE</span>
+            <span className="hidden sm:inline opacity-50">///</span>
+            <span className="text-error">{revokedCerts.length} REVOKED</span>
           </div>
 
-          {/* Active Certificates */}
-          {activeCerts.map((cert, i) => (
-            <div key={cert.id} className={`tonal-card p-6 md:p-8 animate-fade-up-d${Math.min(i + 1, 3)}`}>
-              {/* Header row */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-card bg-gradient-to-br from-secondary/10 to-primary-container/10 flex items-center justify-center shrink-0">
-                    <Award className="text-secondary" size={24} />
-                  </div>
+          <div className="space-y-8">
+            {activeCerts.map((cert) => (
+              <div key={cert.id} className="brutal-card border-l-[12px] border-l-black">
+                <div className="p-6 md:p-10 border-b-2 border-black flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div>
-                    <h4 className="font-display text-lg font-bold text-on-surface mb-1">
-                      {CERT_TYPE_LABELS[cert.certType] || `Type ${cert.certType}`}
+                    <span className="font-mono text-xs font-bold text-neutral-500 uppercase tracking-widest block mb-2">
+                      TOKEN #{cert.id}
+                    </span>
+                    <h4 className="font-display text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none">
+                      {CERT_TYPE_LABELS[cert.certType] || `TYPE-${cert.certType}`}
                     </h4>
-                    <div className="flex items-center gap-2">
-                      <Lock size={10} className="text-primary" />
-                      <span className="badge-soulbound">Soulbound · Token #{cert.id}</span>
-                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-1.5 bg-verified/10 rounded-full px-3 py-1.5">
-                  <ShieldCheck size={12} className="text-verified" />
-                  <span className="font-label text-[10px] text-verified uppercase tracking-wider font-bold">Valid</span>
-                </div>
-              </div>
-
-              {/* Data grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface-low rounded-card p-4">
-                <div>
-                  <span className="font-label text-[10px] uppercase tracking-wider text-outline block mb-1">Issued At</span>
-                  <span className="font-body text-sm text-on-surface">{formatTimestamp(cert.issuedAt)}</span>
-                </div>
-                <div>
-                  <span className="font-label text-[10px] uppercase tracking-wider text-outline block mb-1">Score</span>
-                  <span className="font-body text-sm text-on-surface">
-                    {cert.score > 0 ? `${cert.score} / 100` : '— (N/A)'}
+                  <span className="brutal-badge-success self-start md:self-auto text-base py-2">
+                    VERIFIED
                   </span>
                 </div>
-                <div>
-                  <span className="font-label text-[10px] uppercase tracking-wider text-outline block mb-1">IPFS CID</span>
-                  <a
-                    href={`https://ipfs.io/ipfs/${cert.ipfsCID}`}
-                    target="_blank" rel="noreferrer"
-                    className="text-primary hover:text-primary-dim transition-colors inline-flex items-center gap-1 text-sm break-all"
-                  >
-                    {cert.ipfsCID.length > 16 ? cert.ipfsCID.substring(0, 16) + '...' : cert.ipfsCID}
-                    <ExternalLink size={11} />
-                  </a>
-                </div>
-                <div>
-                  <span className="font-label text-[10px] uppercase tracking-wider text-outline block mb-1">Token URI</span>
-                  <a
-                    href={cert.uri}
-                    target="_blank" rel="noreferrer"
-                    className="text-primary hover:text-primary-dim transition-colors inline-flex items-center gap-1 text-sm break-all"
-                  >
-                    {cert.uri.length > 24 ? cert.uri.substring(0, 24) + '...' : cert.uri}
-                    <ExternalLink size={11} />
-                  </a>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-neutral-100">
+                  <div className="p-6 border-b-2 md:border-b-0 md:border-r-2 lg:border-b-0 border-black">
+                    <span className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-2">ISSUED AT</span>
+                    <span className="font-mono text-lg font-bold">{formatTimestamp(cert.issuedAt)}</span>
+                  </div>
+                  <div className="p-6 border-b-2 md:border-b-0 lg:border-r-2 border-black">
+                    <span className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-2">SCORE</span>
+                    <span className="font-mono text-lg font-bold">{cert.score > 0 ? cert.score : 'N/A'}</span>
+                  </div>
+                  <div className="p-6 border-b-2 lg:border-b-0 lg:border-r-2 border-black break-all">
+                    <span className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-2">IPFS CID</span>
+                    <a href={`https://ipfs.io/ipfs/${cert.ipfsCID}`} target="_blank" rel="noreferrer" className="font-mono text-sm underline decoration-2 underline-offset-4 hover:bg-black hover:text-white inline-flex items-center gap-1">
+                      {cert.ipfsCID.substring(0, 12)}... <ExternalLink size={12} strokeWidth={3} />
+                    </a>
+                  </div>
+                  <div className="p-6 break-all">
+                    <span className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-2">METADATA URI</span>
+                    <a href={cert.uri} target="_blank" rel="noreferrer" className="font-mono text-sm underline decoration-2 underline-offset-4 hover:bg-black hover:text-white inline-flex items-center gap-1">
+                      {cert.uri.substring(0, 16)}... <ExternalLink size={12} strokeWidth={3} />
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
-          {/* Revoked Certificates */}
           {revokedCerts.length > 0 && (
-            <div className="space-y-3">
-              <p className="font-label text-xs uppercase tracking-wider text-outline">
-                Revoked / Burned Records
+            <div className="pt-8 mt-12 border-t-4 border-error border-dashed space-y-4">
+              <p className="font-mono text-sm font-bold uppercase tracking-widest text-error">
+                // REVOKED RECORDS DETECTED
               </p>
               {revokedCerts.map((cert) => (
-                <div key={cert.id} className="tonal-card p-4 opacity-50 flex items-center gap-4">
-                  <ShieldOff size={14} className="text-error shrink-0" />
-                  <span className="font-label text-xs text-error">
-                    Token #{cert.id} — Revoked / Burned
-                  </span>
+                <div key={cert.id} className="brutal-card border-error bg-error/10 p-4 flex items-center justify-between">
+                  <span className="font-mono font-bold text-error">TOKEN #{cert.id}</span>
+                  <span className="font-mono text-xs font-bold uppercase tracking-widest text-error border-2 border-error px-2 py-1">DESTROYED</span>
                 </div>
               ))}
             </div>

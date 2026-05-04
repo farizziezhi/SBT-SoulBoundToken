@@ -1,14 +1,13 @@
-import { useState } from 'react';
-import { CheckCircle2, AlertTriangle, UserPlus, Link as LinkIcon, Hash, Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
-// Certificate type codes matching SKPI categories
 const CERT_TYPES = [
-  { value: 1, label: '001 — Organisasi Kemahasiswaan' },
-  { value: 2, label: '002 — Kompetisi Akademik' },
-  { value: 3, label: '003 — Pelatihan & Workshop' },
-  { value: 4, label: '004 — Pengabdian Masyarakat' },
-  { value: 5, label: '005 — Prestasi Olahraga / Seni' },
-  { value: 6, label: '006 — Sertifikasi Profesi' },
+  { value: 1, label: '001 // ORG. KEMAHASISWAAN' },
+  { value: 2, label: '002 // KOMPETISI AKADEMIK' },
+  { value: 3, label: '003 // PELATIHAN & WORKSHOP' },
+  { value: 4, label: '004 // PENGABDIAN MASYARAKAT' },
+  { value: 5, label: '005 // PRESTASI OLAHRAGA/SENI' },
+  { value: 6, label: '006 // SERTIFIKASI PROFESI' },
 ];
 
 export default function Mint({ account, contract }) {
@@ -21,6 +20,30 @@ export default function Mint({ account, contract }) {
   const [txHash, setTxHash]                 = useState('');
   const [mintedTokenId, setMintedTokenId]   = useState('');
   const [errorMessage, setErrorMessage]     = useState('');
+  const [isIssuer, setIsIssuer]             = useState(false);
+  const [isCheckingRole, setIsCheckingRole] = useState(true);
+
+  useEffect(() => {
+    const checkRole = async () => {
+      if (!contract || !account) {
+        setIsIssuer(false);
+        setIsCheckingRole(false);
+        return;
+      }
+      try {
+        setIsCheckingRole(true);
+        const ISSUER_ROLE = await contract.ISSUER_ROLE();
+        const hasRole = await contract.hasRole(ISSUER_ROLE, account);
+        setIsIssuer(hasRole);
+      } catch (err) {
+        console.error("Failed to check role:", err);
+        setIsIssuer(false);
+      } finally {
+        setIsCheckingRole(false);
+      }
+    };
+    checkRole();
+  }, [contract, account]);
 
   const handleMint = async (e) => {
     e.preventDefault();
@@ -32,7 +55,7 @@ export default function Mint({ account, contract }) {
       const scoreValue = score === '' ? 0 : parseInt(score, 10);
       if (score !== '' && (isNaN(scoreValue) || scoreValue < 0 || scoreValue > 100)) {
         setStatus('error');
-        setErrorMessage('Score must be a number between 0 and 100.');
+        setErrorMessage('SCORE MUST BE A NUMBER BETWEEN 0 AND 100.');
         return;
       }
 
@@ -45,7 +68,6 @@ export default function Mint({ account, contract }) {
       );
       const receipt = await tx.wait();
 
-      // Extract tokenId from CertificateMinted event
       const event = receipt.logs
         .map(log => { try { return contract.interface.parseLog(log); } catch (_) { return null; } })
         .find(e => e && e.name === 'CertificateMinted');
@@ -54,7 +76,6 @@ export default function Mint({ account, contract }) {
       setTxHash(receipt.hash);
       setStatus('success');
 
-      // Reset form
       setStudentAddress('');
       setTokenURI('');
       setCertType(1);
@@ -64,152 +85,162 @@ export default function Mint({ account, contract }) {
       console.error(err);
       setStatus('error');
       setErrorMessage(
-        err.reason || err.message || 'Execution reverted. Ensure you have ISSUER_ROLE.'
+        err.reason || err.message || 'EXECUTION REVERTED. VERIFY ISSUER_ROLE.'
       );
     }
   };
 
-  /* ── Auth Gate ── */
-  if (!account) {
+  if (isCheckingRole) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[55vh] tonal-card p-16 text-center animate-fade-up">
-        <div className="w-20 h-20 rounded-card bg-surface-high flex items-center justify-center mb-8">
-          <AlertTriangle size={32} className="text-outline" />
+      <div className="flex flex-col items-center justify-center min-h-[50vh] brutal-card p-16 text-center animate-fade-in">
+        <div className="font-mono text-sm font-bold uppercase tracking-widest animate-pulse">
+          [ VERIFYING ISSUER CLEARANCE ... ]
         </div>
-        <h2 className="font-display text-2xl font-bold text-on-surface mb-3">Restricted Access</h2>
-        <p className="font-body text-sm text-on-surface-variant max-w-md leading-relaxed">
-          Connect an authorized wallet with ISSUER_ROLE to access the credential issuance protocol.
+      </div>
+    );
+  }
+
+  if (!account || !isIssuer) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] brutal-card p-16 text-center animate-fade-in">
+        <AlertTriangle size={48} strokeWidth={1} className="mb-6" />
+        <h2 className="font-display text-4xl font-black uppercase tracking-tighter mb-4">ISSUANCE LOCKED</h2>
+        <p className="font-mono text-sm text-neutral-600 max-w-md uppercase tracking-wider leading-relaxed">
+          {!account 
+            ? "AUTHORIZATION REQUIRED. CONNECT A WALLET TO PROCEED." 
+            : "ACCESS DENIED. YOUR CONNECTED WALLET DOES NOT POSSESS THE ISSUER_ROLE."}
         </p>
       </div>
     );
   }
 
-  /* ── Mint Form ── */
   return (
-    <div className="max-w-2xl mx-auto space-y-10">
-      {/* Header */}
-      <header className="animate-fade-up">
-        <h1 className="font-display text-4xl font-bold text-on-surface tracking-tight mb-2">Issue Credential</h1>
-        <p className="font-body text-on-surface-variant">
-          SBT Minting Protocol — SKPI Academic Record
+    <div className="max-w-4xl mx-auto space-y-12">
+      <header className="animate-fade-in border-b-4 border-black pb-8">
+        <h1 className="font-display text-5xl md:text-7xl font-black uppercase tracking-tighter mb-2">
+          ISSUE
+        </h1>
+        <p className="font-mono text-sm font-bold tracking-widest text-neutral-500 uppercase">
+          // PROTOCOL COMMAND: MINT_SOULBOUND_TOKEN
         </p>
       </header>
 
-      {/* Form */}
-      <form onSubmit={handleMint} className="tonal-card p-8 md:p-10 space-y-6 animate-fade-up-d1">
-
-        {/* Recipient Address */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-            <UserPlus size={14} /> Recipient Wallet Address
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="0x..."
-            value={studentAddress}
-            onChange={(e) => setStudentAddress(e.target.value)}
-            className="input-ethereal"
-          />
+      <form onSubmit={handleMint} className="brutal-card animate-fade-in">
+        <div className="bg-black text-white p-4 border-b-2 border-black flex justify-between items-center">
+          <span className="font-mono text-xs font-bold tracking-widest uppercase">INPUT DATA</span>
+          <span className="font-mono text-[10px] tracking-widest opacity-50">STRICT</span>
         </div>
-
-        {/* Certificate Type */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-            <Hash size={14} /> Certificate Type (SKPI Category)
-          </label>
-          <select
-            value={certType}
-            onChange={(e) => setCertType(parseInt(e.target.value))}
-            className="input-ethereal"
-          >
-            {CERT_TYPES.map(ct => (
-              <option key={ct.value} value={ct.value}>{ct.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Score */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-            <Star size={14} /> Achievement Score (0–100, leave blank if N/A)
-          </label>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            placeholder="e.g. 85 — or leave blank"
-            value={score}
-            onChange={(e) => setScore(e.target.value)}
-            className="input-ethereal"
-          />
-        </div>
-
-        {/* IPFS CID */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-            <Hash size={14} /> IPFS Content Identifier (CID)
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="QmXoypiz..."
-            value={ipfsCID}
-            onChange={(e) => setIpfsCID(e.target.value)}
-            className="input-ethereal"
-          />
-          <p className="font-label text-[11px] text-outline">
-            Raw CID without ipfs:// prefix. Used for on-chain verification.
-          </p>
-        </div>
-
-        {/* Full Token URI */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-            <LinkIcon size={14} /> Full IPFS Metadata URI
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="ipfs://Qm..."
-            value={tokenURI}
-            onChange={(e) => setTokenURI(e.target.value)}
-            className="input-ethereal"
-          />
-          <p className="font-label text-[11px] text-outline">
-            Full URI used for tokenURI() — typically ipfs://&lt;CID&gt;/metadata.json
-          </p>
-        </div>
-
-        <button type="submit" disabled={status === 'loading'} className="btn-gradient w-full text-center">
-          {status === 'loading' ? 'Executing Sequence...' : 'Mint Soulbound Token'}
-        </button>
-
-        {/* Success */}
-        {status === 'success' && (
-          <div className="bg-verified/5 rounded-card p-6 space-y-2 animate-fade-up">
-            <div className="flex items-center gap-2 text-verified">
-              <CheckCircle2 size={20} />
-              <span className="font-display text-lg font-semibold">Credential Issued Successfully</span>
-            </div>
-            {mintedTokenId && (
-              <p className="font-label text-xs text-verified/70">Token ID: #{mintedTokenId}</p>
-            )}
-            <p className="font-label text-xs text-verified/70 break-all">Tx: {txHash}</p>
+        
+        <div className="p-8 md:p-12 space-y-8">
+          
+          <div className="space-y-3">
+            <label className="block font-mono text-xs font-bold uppercase tracking-widest">
+              RECIPIENT ADDRESS [0x...]
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="0x123..."
+              value={studentAddress}
+              onChange={(e) => setStudentAddress(e.target.value)}
+              className="brutal-input text-lg py-4"
+            />
           </div>
-        )}
 
-        {/* Error */}
-        {status === 'error' && (
-          <div className="bg-error-container/10 rounded-card p-6 space-y-2 animate-fade-up">
-            <div className="flex items-center gap-2 text-error">
-              <AlertTriangle size={20} />
-              <span className="font-display text-lg font-semibold">Issuance Failed</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="block font-mono text-xs font-bold uppercase tracking-widest">
+                SKPI CATEGORY
+              </label>
+              <select
+                value={certType}
+                onChange={(e) => setCertType(parseInt(e.target.value))}
+                className="brutal-input text-sm py-4 appearance-none cursor-pointer"
+              >
+                {CERT_TYPES.map(ct => (
+                  <option key={ct.value} value={ct.value}>{ct.label}</option>
+                ))}
+              </select>
             </div>
-            <p className="font-label text-xs text-error/70 break-words">{errorMessage}</p>
+
+            <div className="space-y-3">
+              <label className="block font-mono text-xs font-bold uppercase tracking-widest">
+                EVALUATION SCORE [0-100]
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="EMPTY IF N/A"
+                value={score}
+                onChange={(e) => setScore(e.target.value)}
+                className="brutal-input text-lg py-4"
+              />
+            </div>
           </div>
-        )}
+
+          <div className="space-y-3">
+            <label className="block font-mono text-xs font-bold uppercase tracking-widest">
+              RAW IPFS CID
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Qm..."
+              value={ipfsCID}
+              onChange={(e) => setIpfsCID(e.target.value)}
+              className="brutal-input text-lg py-4"
+            />
+            <p className="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
+              REQUIRED FOR ON-CHAIN RESOLUTION
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <label className="block font-mono text-xs font-bold uppercase tracking-widest">
+              FULL METADATA URI
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="ipfs://..."
+              value={tokenURI}
+              onChange={(e) => setTokenURI(e.target.value)}
+              className="brutal-input text-lg py-4"
+            />
+          </div>
+        </div>
+
+        <div className="p-8 border-t-2 border-black bg-neutral-100">
+          <button type="submit" disabled={status === 'loading'} className="brutal-btn w-full text-xl py-6">
+            {status === 'loading' ? '[ EXECUTING... ]' : 'EXECUTE MINT FUNCTION'}
+          </button>
+        </div>
       </form>
+
+      {/* Status Messages */}
+      {status === 'success' && (
+        <div className="border-4 border-success p-8 animate-fade-in bg-white">
+          <div className="font-display text-4xl font-black uppercase text-success mb-4 tracking-tighter">
+            ISSUANCE SUCCESS
+          </div>
+          <div className="font-mono text-sm space-y-2 font-bold uppercase">
+            {mintedTokenId && <p>TOKEN ID: <span className="text-black bg-success/20 px-2">#{mintedTokenId}</span></p>}
+            <p className="break-all">TX HASH: {txHash}</p>
+          </div>
+        </div>
+      )}
+
+      {status === 'error' && (
+        <div className="border-4 border-error p-8 animate-fade-in bg-white">
+          <div className="font-display text-4xl font-black uppercase text-error mb-4 tracking-tighter">
+            ISSUANCE FAILED
+          </div>
+          <div className="font-mono text-sm font-bold uppercase break-words text-error">
+            {errorMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
